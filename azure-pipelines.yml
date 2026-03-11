@@ -35,14 +35,21 @@ steps:
 - task: NuGetAuthenticate@1
   displayName: 'NuGet Authenticate'
 
-- script: |
-    dotnet restore $(solution)
+- task: DotNetCoreCLI@2
+  displayName: 'Building $(project)'
+  inputs:
+    projects: '$(project)'
+    command: 'restore'
+    feedsToUse: 'select'
+    vstsFeed: 'b0d25f0a-331d-46ae-9c63-2476b088369a'
 
 - task: DotNetCoreCLI@2
   displayName: 'Building $(project)'
   inputs:
     projects: '$(project)'
     command: 'build'
+    feedsToUse: 'select'
+    vstsFeed: 'b0d25f0a-331d-46ae-9c63-2476b088369a'
 
 - task: DotNetCoreCLI@2
   displayName: 'Packing  $(project)'
@@ -51,6 +58,8 @@ steps:
     packagesToPack: '$(Project)'
     versioningScheme: 'byEnvVar'
     versionEnvVar: 'BuildVersion'
+    feedsToUse: 'select'
+    vstsFeed: 'b0d25f0a-331d-46ae-9c63-2476b088369a'
   
 - task: NuGetCommand@2
   displayName: Pushing to feed
