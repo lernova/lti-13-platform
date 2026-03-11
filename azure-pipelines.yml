@@ -14,26 +14,39 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  Major: $(Major)
-  Minor: $(Minor)
   Patch: $[counter(format('{0}.{1}', variables['Major'], variables['Minor']), 0)]
+  BuildVersion: $[format('{0}.{1}.{2}', variables['Major'], variables['Minor'], variables['PatchCounter'])]
 
 steps:
 - task: Bash@3
   inputs:
     targetType: 'inline'
-    script: 'echo $(Patch)'
+    script: 'echo $(BuildVersion)'
 
 - task: NuGetToolInstaller@1
-  enabled: false
 
 - task: NuGetCommand@2
-  enabled: false
+  displayName: 'Restoring solution'
   inputs:
     restoreSolution: '$(solution)'
 
 - task: DotNetCoreCLI@2
-  enabled: false
+  displayName: 'Building $(project)'
   inputs:
     projects: '$(project)'
     command: 'build'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Packing  $(project)'
+  inputs:
+    command: pack
+    packagesToPack: '$(Project)'
+    versioningScheme: 'byEnvVar'
+    versionEnvVar: 'BuildVersion'
+  
+- task: NuGetCommand@2
+  displayName: Pushing to feed
+  inputs:
+    command: 'push'
+    nuGetFeedType: 'internal'
+    publishVstsFeed: 'b0d25f0a-331d-46ae-9c63-2476b088369a'
