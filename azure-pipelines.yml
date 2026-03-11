@@ -23,13 +23,20 @@ steps:
     targetType: 'inline'
     script: 'echo $(BuildVersion)'
 
-- task: NuGetAuthenticate@1
 - task: NuGetToolInstaller@1
 
-- task: NuGetCommand@2
-  displayName: 'Restoring solution'
+- task: UseDotNet@2
+  displayName: 'Install .NET Core SDK'
   inputs:
-    restoreSolution: '$(solution)'
+    version: 10.x
+    performMultiLevelLookup: true
+    includePreviewVersions: true
+
+- task: NuGetAuthenticate@1
+  displayName: 'NuGet Authenticate'
+
+- script: |
+    dotnet restore <SOLUTION_PATH>
 
 - task: DotNetCoreCLI@2
   displayName: 'Building $(project)'
