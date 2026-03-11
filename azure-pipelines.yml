@@ -10,19 +10,28 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  project: '**/NP.Lti13Platform.csproj'
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   Patch: $[counter(format('{0}.{1}', variables['Major'], variables['Minor']), 0)]
   BuildVersion: $[format('{0}.{1}.{2}', variables['Major'], variables['Minor'], variables['Patch'])]
 
+parameters:
+- name: projects
+  type: object
+  default:
+  - NP.Lti13Platform.Core.csproj
+  - NP.Lti13Platform.AssignmentGradeServices.csproj
+  - NP.Lti13Platform.DeepLinking.csproj
+  - NP.Lti13Platform.NameRoleProvisioningServices.csproj
+  - NP.Lti13Platform.csproj
+
 steps:
 - task: Bash@3
   inputs:
     targetType: 'inline'
     script: 'echo $(BuildVersion)'
-
+    
 - task: NuGetToolInstaller@1
 
 - task: UseDotNet@2
@@ -35,34 +44,35 @@ steps:
 - task: NuGetAuthenticate@1
   displayName: 'NuGet Authenticate'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Restoring $(project)'
-  inputs:
-    projects: '$(project)'
-    command: 'restore'
-    feedsToUse: 'select'
-    vstsFeed: 'b0d25f0a-331d-46ae-9c63-2476b088369a'
+- ${{ each project in parameters.projects }}:
+  - task: DotNetCoreCLI@2
+    displayName: 'Restoring ${{ project }}'
+    inputs:
+      projects: '**/${{ project }}'
+      command: 'restore'
+      feedsToUse: 'select'
+      vstsFeed: 'b0d25f0a-331d-46ae-9c63-2476b088369a'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Building $(project)'
-  inputs:
-    projects: '$(project)'
-    command: 'build'
-    feedsToUse: 'select'
-    vstsFeed: 'b0d25f0a-331d-46ae-9c63-2476b088369a'
+  - task: DotNetCoreCLI@2
+    displayName: 'Building ${{ project }}'
+    inputs:
+      projects: '**/${{ project }}'
+      command: 'build'
+      feedsToUse: 'select'
+      vstsFeed: 'b0d25f0a-331d-46ae-9c63-2476b088369a'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Packing  $(project)'
-  inputs:
-    command: pack
-    packagesToPack: '$(Project)'
-    versioningScheme: 'byEnvVar'
-    versionEnvVar: 'BuildVersion'
-    feedsToUse: 'select'
-    vstsFeed: 'b0d25f0a-331d-46ae-9c63-2476b088369a'
+  - task: DotNetCoreCLI@2
+    displayName: 'Packing  ${{ project }}'
+    inputs:
+      command: pack
+      packagesToPack: '**/${{ project }}'
+      versioningScheme: 'byEnvVar'
+      versionEnvVar: 'BuildVersion'
+      feedsToUse: 'select'
+      vstsFeed: 'b0d25f0a-331d-46ae-9c63-2476b088369a'
   
-- task: DotNetCoreCLI@2
-  displayName: Pushing to feed
-  inputs:
-    command: 'push'
-    publishVstsFeed: 'b0d25f0a-331d-46ae-9c63-2476b088369a'
+  - task: DotNetCoreCLI@2
+    displayName: Pushing to feed
+    inputs:
+      command: 'push'
+      publishVstsFeed: 'b0d25f0a-331d-46ae-9c63-2476b088369a'
