@@ -19,7 +19,7 @@ variables:
 steps:
 - task: Bash@3
   inputs:
-    filePath: 'echo $(Patch)'
+    script: 'echo $(Patch)'
 
 - task: NuGetToolInstaller@1
   enabled: false
