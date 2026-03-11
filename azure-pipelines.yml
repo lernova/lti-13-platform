@@ -71,8 +71,8 @@ steps:
       feedsToUse: 'select'
       vstsFeed: 'b0d25f0a-331d-46ae-9c63-2476b088369a'
   
-  - task: DotNetCoreCLI@2
-    displayName: Pushing to feed
-    inputs:
-      command: 'push'
-      publishVstsFeed: 'b0d25f0a-331d-46ae-9c63-2476b088369a'
+- task: DotNetCoreCLI@2
+  displayName: Pushing to feed
+  inputs:
+    command: 'push'
+    publishVstsFeed: 'b0d25f0a-331d-46ae-9c63-2476b088369a'
