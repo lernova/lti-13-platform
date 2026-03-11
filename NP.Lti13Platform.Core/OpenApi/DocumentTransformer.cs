@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace NP.Lti13Platform.Core.OpenApi;
 
@@ -16,11 +16,12 @@ public class DocumentTransformer : IOpenApiDocumentTransformer
     /// <param name="document">The <see cref="OpenApiDocument"/> to which the security scheme will be added.</param>
     /// <param name="context">The context for the OpenAPI document transformation. This parameter provides additional metadata or state for the transformation process.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests. This can be used to cancel the operation if needed.</param>
+
     public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
         document.Components ??= new OpenApiComponents();
 
-        if (!document.Components.SecuritySchemes.ContainsKey(Lti13OpenApi.SecuritySchemeId))
+        if (document.Components.SecuritySchemes is not null && !document.Components.SecuritySchemes.ContainsKey(Lti13OpenApi.SecuritySchemeId))
         {
             document.Components.SecuritySchemes.Add(Lti13OpenApi.SecuritySchemeId, new OpenApiSecurityScheme
             {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace NP.Lti13Platform.Core.OpenApi;
 
@@ -22,9 +22,11 @@ public class OperationTransformer : IOpenApiOperationTransformer
         if (context.Description.GroupName == Lti13OpenApi.GroupName &&
             context.Description.ActionDescriptor.EndpointMetadata.OfType<AuthorizeAttribute>().Any())
         {
-            operation.Security.Add(new OpenApiSecurityRequirement
+            operation.Security?.Add(new OpenApiSecurityRequirement
             {
-                [new OpenApiSecurityScheme { Reference = new OpenApiReference { Id = Lti13OpenApi.SecuritySchemeId, Type = ReferenceType.SecurityScheme } }] = Array.Empty<string>()
+                [
+                    new OpenApiSecuritySchemeReference(Lti13OpenApi.SecuritySchemeId, context.Document)
+                ] = []
             });
         }
 
