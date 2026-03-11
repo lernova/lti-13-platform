@@ -15,7 +15,7 @@ variables:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   Patch: $[counter(format('{0}.{1}', variables['Major'], variables['Minor']), 0)]
-  BuildVersion: $[format('{0}.{1}.{2}', variables['Major'], variables['Minor'], variables['PatchCounter'])]
+  BuildVersion: $[format('{0}.{1}.{2}', variables['Major'], variables['Minor'], variables['Patch'])]
 
 steps:
 - task: Bash@3
@@ -23,6 +23,7 @@ steps:
     targetType: 'inline'
     script: 'echo $(BuildVersion)'
 
+- task: NuGetAuthenticate@1
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
