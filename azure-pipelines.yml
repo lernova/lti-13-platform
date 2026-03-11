@@ -1,0 +1,36 @@
+# ASP.NET
+# Build and test ASP.NET projects.
+# Add steps that publish symbols, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
+
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  project: '**/NP.Lti13Platform.csproj'
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+  Patch: $[counter(format('{0}.{1}', variables['Major'], variables['Minor']), 0)]
+
+steps:
+- task: Bash@3
+  inputs:
+    filePath: 'echo $(Patch)'
+
+- task: NuGetToolInstaller@1
+  enabled: false
+
+- task: NuGetCommand@2
+  enabled: false
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: DotNetCoreCLI@2
+  enabled: false
+  inputs:
+    projects: '$(project)'
+    command: 'build'
