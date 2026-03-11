@@ -36,7 +36,7 @@ steps:
   displayName: 'NuGet Authenticate'
 
 - task: DotNetCoreCLI@2
-  displayName: 'Building $(project)'
+  displayName: 'Restoring $(project)'
   inputs:
     projects: '$(project)'
     command: 'restore'
