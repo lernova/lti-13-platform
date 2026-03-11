@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
+namespace NP.Lti13Platform.SourceGenerator;
+
 [Generator]
 public sealed class TemplateGenerator : IIncrementalGenerator
 {
@@ -17,7 +19,7 @@ public sealed class TemplateGenerator : IIncrementalGenerator
     private static readonly HashSet<string> AttributeNames =
     [
         "StringId",
-    ];
+];
 
     // The comment to prepend to generated files
     private const string GeneratedFileComment = @"//------------------------------------------------------------------------------
@@ -33,10 +35,10 @@ public sealed class TemplateGenerator : IIncrementalGenerator
 #nullable enable
 ";
 
-    public void Initialize(IncrementalGeneratorInitializationContext initContext)
+    public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         // Find all type declarations with at least one attribute
-        var candidateTypes = initContext.SyntaxProvider
+        var candidateTypes = context.SyntaxProvider
             .CreateSyntaxProvider(
                 predicate: static (node, _) =>
                     node is TypeDeclarationSyntax tds &&
@@ -64,7 +66,7 @@ public sealed class TemplateGenerator : IIncrementalGenerator
             .Where(t => t.attributeNames.Any(attr => AttributeNames.Contains(attr)));
 
         // Generate source for each type and each attribute using its template
-        initContext.RegisterSourceOutput(candidateTypes.Collect(), (spc, typeDecls) =>
+        context.RegisterSourceOutput(candidateTypes.Collect(), (spc, typeDecls) =>
         {
             foreach (var (typeDecl, attributeNames) in typeDecls)
             {
@@ -127,7 +129,10 @@ public sealed class TemplateGenerator : IIncrementalGenerator
                         fileName = $"{ns}.{typeName}";
                     }
 
-                    spc.AddSource($"{fileName}_{attrName}_Generated.g.cs", string.Join("\r\n", [GeneratedFileComment, namespaceDeclaration, generatedBody]));
+                    spc.AddSource(
+                        $"{fileName}_{attrName}_Generated.g.cs",
+                        string.Join("\r\n", GeneratedFileComment, namespaceDeclaration, generatedBody)
+                    );
                 }
             }
         });
