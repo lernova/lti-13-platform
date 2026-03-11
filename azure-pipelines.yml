@@ -36,13 +36,8 @@ steps:
   displayName: 'NuGet Authenticate'
 
 - script: |
-    dotnet restore <SOLUTION_PATH>
-
-- task: DotNetCoreCLI@2
-  displayName: 'Building $(project)'
-  inputs:
-    projects: '$(project)'
-    command: 'build'
+    dotnet restore $(solution)
+    dotnet build $(solution)
 
 - task: DotNetCoreCLI@2
   displayName: 'Packing  $(project)'
